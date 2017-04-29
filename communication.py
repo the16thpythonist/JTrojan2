@@ -4,6 +4,8 @@ import pickle
 
 class RequestForm:
 
+    header = "REQUEST"
+
     def __init__(self, function_name, parameters, addresses, return_mode, error_mode):
         self.function_name = function_name
         self.parameters = parameters
@@ -14,18 +16,48 @@ class RequestForm:
         # The length of the parameters byte object as it is being received
         self._length = None
 
+    def create_form_string(self):
+        """
+        This method creates the string for the whole form in general. The form consists of the Header, that identifies
+        the type of message that is being sent and the lines with the identifiers separated by ':' to the values.
+        The lines are separated by \n except for the last line which is variable in length. The length is specified.
+        Returns:
+        The string of the form string
+        """
+        string_list = [self.header]
+        # Adding function name line
+        function_name_string = self.create_function_name_string()
+        string_list.append(function_name_string)
+        # Adding return handle line
+        return_mode_string = self.create_return_mode_string()
+        string_list.append(return_mode_string)
+        # Adding the error mode line
+        error_mode_string = self.create_error_mode_string()
+        string_list.append(error_mode_string)
+        # Adding the addresses string
+        addresses_string = self.create_addresses_string()
+        string_list.append(addresses_string)
+        # Creating the parameters string first and then the length line, adding the length line first.
+        # The parameters have to be created first, because the method calculates the length first
+        parameters_string = self.create_parameter_string()
+        length_string = self.create_length_string()
+        string_list.append(length_string)
+        string_list.append(parameters_string)
+        # Actually assembling the string from the list
+        return '\n'.join(string_list)
+
     def create_length_string(self):
         """
-        
+        This method creates the string for the length. The length is an integer value and specifies how many bytes have
+        to be read for the encoded parameters line, after the identifier !
         Returns:
-
+        The string line
         """
         # The length property has to be set for the length line to be created
         assert self._length is not None
         # The string list, that will be the string
         string_list = ["length:", str(self._length)]
         return ''.join(string_list)
-
 
     def create_function_name_string(self):
         """
@@ -100,7 +132,15 @@ class RequestForm:
         pickled_parameters = pickle.dumps(self.parameters)
         # Encoding the pickled data into a byte string of the 'base64' encoding and then into an actual string
         encoded_byte_string = codecs.encode(pickled_parameters, "base64")
+        self._length = len(encoded_byte_string)
         encoded_string = str(encoded_byte_string)[2:][:-1]
         # Adding to the string list to convert the final assembled string
         string_list.append(encoded_string)
         return ''.join(string_list)
+
+
+if __name__ == '__main__':
+    f = RequestForm("get", ["hallo", True], ["max", "anna"], "blocking", "discard")
+    print(f.create_form_string())
+
+
