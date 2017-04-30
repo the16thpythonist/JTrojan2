@@ -211,6 +211,19 @@ class Greeter(mp.Process):
         # Creating the socket
         self.sock = None
 
+    def init_socket(self):
+        """
+        This method creates a new socket in the 'sock' property of the object and then configures it to be a listening
+        server socket and binding it to the address, that was passed to the object on creation.
+        Returns:
+        void
+        """
+        # Creating a new socket
+        self.create_socket()
+        # Setting the socket to listen
+        address = self.assemble_address()
+        self.sock.bind(address)
+
     def create_socket(self):
         """
         This method creates a new raw socket in the 'sock' property, which also means closing the old one, in case
@@ -226,3 +239,13 @@ class Greeter(mp.Process):
                 pass
         # Creating a new socket
         self.sock = socket.socket(self.family, socket.SOCK_STREAM)
+
+    def assemble_address(self):
+        """
+        This method simply puts the ip and the port into a tuple to create the address, that sockets use
+        Returns:
+        A tuple with the first element being the ip string at which the server is supposed to listen and the second
+        element being the integer port at which the server is supposed to listen.
+        """
+        return self.ip, self.port
+
