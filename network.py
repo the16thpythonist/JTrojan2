@@ -4,9 +4,11 @@ import time
 
 class SocketWrapper:
 
-    def __init__(self, sock):
+    def __init__(self, sock, connected):
         # Assigning the socket object to the variable
         self.sock = sock
+        # The variable, which stores the state of the connection
+        self.connected = connected
 
     def connect(self, ip, port, attempts, delay):
         """
@@ -41,10 +43,13 @@ class SocketWrapper:
                 time.sleep(delay)
                 # Attempting to build the connection
                 self.sock.connect(address)
+                # Updating the connected status to True
+                self.connected = True
                 break
             except Exception as exception:
                 # Decrementing the counter for the attempts
                 attempts -= 1
+                self.connected = False
             finally:
                 # Closing the socket and creating a new one, which is gonna be used in the next try
                 self.sock.close()
