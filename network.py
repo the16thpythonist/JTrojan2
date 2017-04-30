@@ -196,10 +196,23 @@ class SocketWrapper:
 
 
 class Greeter(mp.Process):
-
+    """
+    The Greeter process is the first network instance of the trojan server system, its only job is to listen at the
+    designated port of the local machine and accept all incoming connection and putting all the resulting bound
+    sockets and their origin addresses as a tuple (in that order) into the multiprocessing queue, that was specified.
+    Args:
+        port: The integer port at which the server is supposed to listen
+        output_queue: A multiprocessing.Queue, into which the accepted socket connections are being put
+        state: A multiprocessing.Value of boolean type, by which the mother process of the server can control the main
+            loop of the Greeter
+        family: The family for the server socket. Basically the decision between using ip4 or ip6.
+            Default on ip4
+        ip: The string ip at which to listen to the incoming connections.
+            Default on the local machine, by 'localhost'
+    """
     def __init__(self, port, output_queue, state, family=socket.AF_INET, ip="localhost"):
         mp.Process.__init__()
-        # The name of the process
+        # The name of the process#
         self.name = "greeter"
         # The network information
         self.ip = ip
@@ -217,6 +230,12 @@ class Greeter(mp.Process):
         self.running = state
 
     def run(self):
+        """
+        This is the main method of the process, which runs the main loop. The greeter will constantly wait for new
+        connections to come and will relay the resulting bound socket and the origin address to the output queue
+        Returns:
+        void
+        """
         # Making the server start to listen
         self.sock.listen(10)
 
