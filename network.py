@@ -71,6 +71,21 @@ class SocketWrapper:
         pass
 
     def receive_length(self, length, timeout=None):
+        """
+        This method receives a certain amount of bytes from the socket object, that is being wrapped. It is also
+        possible to specify the amount of time the method is supposed to wait for the next character to be received
+        before issuing a timeout.
+        Raises:
+            EOFError: In case the data stream terminated before the specified amount of bytes was received
+            ConnectionError: In case the socket object in question is not connected yet.
+            TimeoutError: In case it took to long to receive the next byte
+        Args:
+            length: The integer amount of bytes to be received from the socket
+            timeout: The float amount of time, that is tolerated for a byte to be received
+
+        Returns:
+        The bytes string of the data with the specified length, received from the socket
+        """
         # First checking whether or not there actually is a callable socket within the 'connection' attribute, by
         # checking the 'connected' flag. In case there is not, will raise an exception
         if not self.connected:
