@@ -49,11 +49,11 @@ class SocketWrapper:
             except Exception as exception:
                 # Decrementing the counter for the attempts
                 attempts -= 1
-                self.connected = False
             finally:
                 # Closing the socket and creating a new one, which is gonna be used in the next try
                 self.sock.close()
                 self.sock = socket.socket(socket_family, socket_type)
+                self.connected = False
         # In case the loop exits without the connection being established
         if self.attempts == 0:
             raise ConnectionRefusedError("The socket could not connect to {}".format(address))
