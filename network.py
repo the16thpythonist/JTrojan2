@@ -37,7 +37,7 @@ class SocketWrapper:
         # Assembling the port and the ip to the address tuple
         address = (ip, port)
         # Calling the connect of the socket as many times as specified
-        while attempts > 0:
+        while not self.connected:
             try:
                 # Delaying the try possibly
                 time.sleep(delay)
@@ -45,20 +45,19 @@ class SocketWrapper:
                 self.sock.connect(address)
                 # Updating the connected status to True
                 self.connected = True
-                break
             except Exception as exception:
-                # Decrementing the counter for the attempts
-                attempts -= 1
-            finally:
                 # Closing the socket and creating a new one, which is gonna be used in the next try
                 self.sock.close()
                 self.sock = socket.socket(socket_family, socket_type)
                 self.connected = False
+                # Decrementing the counter for the attempts
+                attempts -= 1
+
         # In case the loop exits without the connection being established
         if self.attempts == 0:
             raise ConnectionRefusedError("The socket could not connect to {}".format(address))
 
-    def receive_until_character(self, character, timeout, include=False):
+    def receive_until_character(self, character, limit, timeout=None, include=False):
         # Checking for the data type fo
         is_bytes = isinstance(character, bytes)
         is_int = isinstance(character, int)
@@ -68,7 +67,8 @@ class SocketWrapper:
             character = int.to_bytes(character, "1", "big")
 
         # Calling the receive length function with one byte at a time until the character in question appears
-        pass
+        while True:
+
 
     def receive_length(self, length, timeout=None):
         """
