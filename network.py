@@ -70,5 +70,28 @@ class SocketWrapper:
         # Calling the receive length function with one byte at a time until the character in question appears
         pass
 
-    def receive_length(self, length):
-        pass
+    def receive_length(self, length, timeout=None):
+        # First checking whether or not there actually is a callable socket within the 'connection' attribute, by
+        # checking the 'connected' flag. In case there is not, will raise an exception
+        if not self.connected:
+            raise ConnectionError("There is no open connection to receive from yet!")
+
+        start_time = time.time()
+        data = b''
+        while len(data) < length:
+            # receiving more data, while being careful not accidentally receiving too much
+            more = self.sock.recv(length - len(data))
+
+            # In case there can be no more data received, but the amount of data already received does not match the
+            # amount of data that was specified for the method, raising End of file error
+            if not more:
+                raise EOFError("Only received ({}/{}) bytes".format(len(data), length))
+
+            # Checking for overall timeout
+            time_delta = time.time() - start_time
+            if (timeout is not None) and time_delta >= timeout:
+                raise TimeoutError("{} Bytes could not be received in {} seconds".format(length, timeout))
+
+            # Adding the newly received data to the stream of already received data
+            data += more
+        return data
