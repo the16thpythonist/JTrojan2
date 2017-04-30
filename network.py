@@ -292,16 +292,17 @@ class Greeter(mp.Process):
 
 class FormReceiveHandler(threading.Thread):
 
-    def __init__(self, sock, output_queue):
+    def __init__(self, output_queue):
         threading.Thread.__init__(self)
         # Putting the already connected socket into the wrapper fro easier handle
-        self.sock = sock
+        self.sock = None
         self.sock_wrap = None
-        self.create_socket_wrap()
         # The queue into which the finished form and socket are supposed to be put into
         self.output = output_queue
 
         self.running = False
+        # The idle flag tells the manager, if the handler can be used again or if it is still working
+        self.idle = True
 
     def run(self):
         # Updating the running flag to True
@@ -310,7 +311,22 @@ class FormReceiveHandler(threading.Thread):
         while self.running:
             # Receiving all the lines until one of them is the length line, which indicates, that the following line
             # will not be character bt length terminated. Also being the last line
-            pass
+            while self.idle is True:
+                time.sleep(0.0001)
+
+    def assign(self, sock):
+        """
+        this method will be used by whatever higher instance will manage the handler to assign it a new job. More
+        specifically assigning it a new socket to begin receiving the form from
+        Args:
+            sock: The socket object, that shoul be handled
+
+        Returns:
+        void
+        """
+        # Assigning the socket to the property and creating the socket wrapper
+        self.sock = sock
+        self.create_socket_wrap()
 
     def receive_encoded_line(self, length):
         """
@@ -376,6 +392,7 @@ class Evaluator(mp.Process):
 
     def run(self):
         while self.running is True:
+            pass
 
 
 
