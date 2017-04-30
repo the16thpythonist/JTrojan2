@@ -9,6 +9,11 @@ class SocketWrapper:
         self.sock = sock
         # The variable, which stores the state of the connection
         self.connected = connected
+        # The properties, that describe the type of the socket
+        self.family = None
+        self.appoint_family()
+        self.type = None
+        self.appoint_type()
 
     def connect(self, ip, port, attempts, delay):
         """
@@ -103,7 +108,6 @@ class SocketWrapper:
 
         return data
 
-
     def receive_length(self, length, timeout=None):
         """
         This method receives a certain amount of bytes from the socket object, that is being wrapped. It is also
@@ -144,3 +148,21 @@ class SocketWrapper:
             # Adding the newly received data to the stream of already received data
             data += more
         return data
+
+    def appoint_family(self):
+        """
+        This method simply sets the family attribute of the object to the same value as the family property of the
+        socket, that is being wrapped
+        Returns:
+        void
+        """
+        self.family = self.sock.family
+
+    def appoint_type(self):
+        """
+        this method simply sets the type property of the object to the same value as the type property of the
+        socket, that is being wrapped.
+        Returns:
+        void
+        """
+        self.type = self.sock.type
