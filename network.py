@@ -1,5 +1,7 @@
 import multiprocessing as mp
 import threading
+import pickle
+import codecs
 import socket
 import time
 
@@ -316,18 +318,24 @@ class FormReceiveHandler(threading.Thread):
             while self.idle is True:
                 time.sleep(0.0001)
 
-            # Creating the dictionary for the data received
+            # Creating the dictionary for the data received. Clearing it, if this is 2nd+ run of handler
             self.data = {}
 
             # Receiving the header
-            header = self.receive_line()
+            self.receive_header()
             identifier = b''
             content = b''
 
             # Receiving all the lines until one is the length line, indicating that the following is encoded content or
             # it is the end line
             while identifier != b'end':
-                pass
+                identifier, content = self.receive_content_line()
+                self.data[identifier] = content
+                # In case the identifier is the length, receiving the next line as encoded line
+                if identifier == b'length':
+                    length = int(str(content))
+                    identifier, content = self.receive_encoded_line(length)
+                    self.data[identifier] = content
 
     def assign(self, sock):
         """
@@ -406,6 +414,26 @@ class FormReceiveHandler(threading.Thread):
         """
         self.sock_wrap = SocketWrapper(self.sock, True)
 
+    def evaluate_content(self):
+        pass
+
+    @staticmethod
+    def create_content_decoded(content):
+        """
+        This method will take the content of a line, that was received from the socket and interpret it as encoded
+        and pickled data and thus will decode it using the 'base64' codec and then unpickle the resulting bytes object
+        Args:
+            content: The bytes string, that was received as content to a line of the form
+
+        Returns:
+        The object that was originally pickled
+        """
+        # Decoding the content byte string
+        content_bytes = codecs.decode(content.encode(), "base64")
+        # Unpickling the data
+        content_object = pickle.loads(content_bytes)
+        # Returning the unpickled object
+        return content_object
 
 class Evaluator(mp.Process):
 
