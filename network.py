@@ -36,9 +36,6 @@ class SocketWrapper:
         assert isinstance(ip, str), "ip is not a string"
         assert isinstance(port, int) and (0 <= port <= 65536), "The port is wrong type or value range"
         assert isinstance(attempts, int) and (0 <= attempts), "The attempts parameter is not the same value"
-        # Saving the type and the family of the socket, so that a new one can be created in case the other is corrupted
-        socket_family = self.sock.family
-        socket_type = self.sock.type
         # Assembling the port and the ip to the address tuple
         address = (ip, port)
         # Calling the connect of the socket as many times as specified
@@ -53,7 +50,7 @@ class SocketWrapper:
             except Exception as exception:
                 # Closing the socket and creating a new one, which is gonna be used in the next try
                 self.sock.close()
-                self.sock = socket.socket(socket_family, socket_type)
+                self.sock = socket.socket(self.family, self.type)
                 self.connected = False
                 # Decrementing the counter for the attempts
                 attempts -= 1
@@ -148,6 +145,18 @@ class SocketWrapper:
             # Adding the newly received data to the stream of already received data
             data += more
         return data
+
+    def release_socket(self):
+        """
+        This method releases the socket from the wrapper, by setting the internal property to the socket to None and
+        returning the wrapper
+        Returns:
+        The socket, that was used by the wrapper
+        """
+        # Removing the pointer to the socket from the object property and returning the socket
+        sock = self.sock
+        self.sock = None
+        return sock
 
     def appoint_family(self):
         """
