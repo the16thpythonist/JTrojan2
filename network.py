@@ -57,7 +57,24 @@ class SocketWrapper:
         if self.attempts == 0:
             raise ConnectionRefusedError("The socket could not connect to {}".format(address))
 
-    def receive_until_character(self, character, limit, timeout=None, include=False)
+    def receive_until_character(self, character, limit, timeout=None, include=False):
+        """
+        This method receives data from the wrapped socket until the special 'character' has been received. The limit
+        specifies after how many bytes without the termination character a Error should be raised. The timeout
+        is the amount of seconds every individual byte is allowed to take to receive before raising an error. The
+        include flag tells whether the termination character should be included in the returned data.
+        Args:
+            character: can either be an integer in the range between 0 and 255, that is being converted into a
+                character or can be a bytes object/ bytes string of the length 1. After receiving this byte the data
+                up to that point is returned.
+            limit: The integer amount of bytes, that can be received without terminating, without raising an error.
+            timeout: The float amount of seconds each individual byte is allowed to take to receive before a
+                Timeout is raised.
+            include: The boolean flag of whether to include the termination character in the return or not
+
+        Returns:
+        The data bytes, that were received up to the point, when the termination character was received
+        """
         # Checking for the data type fo
         is_bytes = isinstance(character, bytes)
         is_int = isinstance(character, int)
