@@ -2,6 +2,12 @@ import codecs
 import pickle
 
 
+class CommunicationForm:
+
+    def __init__(self):
+        pass
+
+
 class RequestForm:
     """
     This class represents the string, that is being sent from the user of the JTrojan system to the server. The request
@@ -9,7 +15,7 @@ class RequestForm:
     information:
     - id: The id of the user, that sends the request, so that the server can address the response to the correct socket
     - function name: The name of the function to be executed within the server
-    - return mode: whether or not the server is supposed to return the resulting data immediatly or store it in the
+    - return mode: whether or not the server is supposed to return the resulting data immediately or store it in the
         buffer if the users profile. So whether the user is executing as blocking or non blocking command
     - error mode: -
     - addresses: A list with the entities, that are being addresses by the function, so on which trojans the function
