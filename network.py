@@ -290,13 +290,21 @@ class Greeter(mp.Process):
         return self.ip, self.port
 
 
-class FormReceiverWorker(threading.Thread):
+class FormReceiveHandler(threading.Thread):
 
     def __init__(self, sock, output_queue):
         threading.Thread.__init__(self)
         # Putting the already connected socket into the wrapper fro easier handle
         self.sock = sock
         self.sock_wrap = None
+
+    def create_socket_wrap(self):
+        """
+        This method creates a SocketWrapper object and assigns it to the 'sock_wrap' property
+        Returns:
+        void
+        """
+        self.sock_wrap = SocketWrapper(self.sock, True)
 
 
 class Evaluator(mp.Process):
