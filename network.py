@@ -288,3 +288,9 @@ class Greeter(mp.Process):
         """
         return self.ip, self.port
 
+
+class Evaluator(mp.Process):
+
+    def __init__(self):
+        pass
+
