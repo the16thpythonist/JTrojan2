@@ -297,6 +297,30 @@ class FormReceiveHandler(threading.Thread):
         # Putting the already connected socket into the wrapper fro easier handle
         self.sock = sock
         self.sock_wrap = None
+        self.create_socket_wrap()
+        # The queue into which the finished form and socket are supposed to be put into
+        self.output = output_queue
+
+        self.running = False
+
+    def run(self):
+        # Updating the running flag to True
+        self.running = True
+        assert isinstance(self.sock_wrap, SocketWrapper)
+        while self.running:
+            # Receiving all the lines until one of them is the length line, which indicates, that the following line
+            # will not be character bt length terminated. Also being the last line
+            pass
+
+    def receive_line(self):
+        """
+        This method will receive data from the socket until a line break character is being received, so essentially
+        receives one line from the socket.
+        Returns:
+        The received byte string without the newline character
+        """
+        byte_string = self.sock_wrap.receive_until_character(b'\n', 500)
+        return byte_string
 
     def create_socket_wrap(self):
         """
