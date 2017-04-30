@@ -304,22 +304,37 @@ class FormReceiveHandler(threading.Thread):
         # The idle flag tells the manager, if the handler can be used again or if it is still working
         self.idle = True
 
+        # The dictionary that saves the data in every step
+        self.data = {}
+
     def run(self):
         # Updating the running flag to True
         self.running = True
-        assert isinstance(self.sock_wrap, SocketWrapper)
+
         while self.running:
-            # Receiving all the lines until one of them is the length line, which indicates, that the following line
-            # will not be character bt length terminated. Also being the last line
+            # Waiting for a new socket to be assigned to handle
             while self.idle is True:
                 time.sleep(0.0001)
+
+            # Creating the dictionary for the data received
+            self.data = {}
+
+            # Receiving the header
+            header = self.receive_line()
+            identifier = b''
+            content = b''
+
+            # Receiving all the lines until one is the length line, indicating that the following is encoded content or
+            # it is the end line
+            while identifier != b'end':
+                pass
 
     def assign(self, sock):
         """
         this method will be used by whatever higher instance will manage the handler to assign it a new job. More
         specifically assigning it a new socket to begin receiving the form from
         Args:
-            sock: The socket object, that shoul be handled
+            sock: The socket object, that should be handled
 
         Returns:
         void
@@ -327,6 +342,8 @@ class FormReceiveHandler(threading.Thread):
         # Assigning the socket to the property and creating the socket wrapper
         self.sock = sock
         self.create_socket_wrap()
+        # Resetting the idle property so that the main loop exits
+        self.idle = False
 
     def receive_encoded_line(self, length):
         """
@@ -359,6 +376,17 @@ class FormReceiveHandler(threading.Thread):
         split_list = byte_string.split(b':')
         # Returning the tuple of the identifier byte string and the content byte string
         return tuple(split_list)
+
+    def receive_header(self):
+        """
+        This method will receive one line from the socket and save it into the data dictionary with the key as header,
+        thus the method should only be called first, when beginning to receive the data.
+        The name and the key will be saved as byte strings
+        Returns:
+        void
+        """
+        byte_string = self.receive_line()
+        self.data[b'header'] = byte_string
 
     def receive_line(self):
         """
