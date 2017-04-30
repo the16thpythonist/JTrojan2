@@ -197,7 +197,7 @@ class SocketWrapper:
 
 class Greeter(mp.Process):
 
-    def __init__(self, port, output_queue, family=socket.AF_INET, ip="localhost"):
+    def __init__(self, port, output_queue, state, family=socket.AF_INET, ip="localhost"):
         mp.Process.__init__()
         # The name of the process
         self.name = "greeter"
@@ -208,8 +208,28 @@ class Greeter(mp.Process):
         # The output queue for the sockets
         self.output = output_queue
 
-        # Creating the socket
+        # Creating the socket and binding it to the address
         self.sock = None
+        self.init_socket()
+
+        # The state is a shared variable amongst the Processes and controls their main loops, so they dont have to be
+        # terminated by force and eventually corrupting the queues
+        self.running = state
+
+    def run(self):
+        # Making the server start to listen
+        self.sock.listen(10)
+
+        try:
+            while self.running is True:
+                # Constantly accepting new connections and putting the socket and the address into the output queue
+                connection, address = self.sock.accept()
+                self.output.put((connection, address))
+        except socket.error:
+            pass
+        finally:
+            # Closing the socket in case of termination
+            self.sock.close()
 
     def init_socket(self):
         """
