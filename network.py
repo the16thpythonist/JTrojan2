@@ -57,7 +57,7 @@ class SocketWrapper:
         if self.attempts == 0:
             raise ConnectionRefusedError("The socket could not connect to {}".format(address))
 
-    def receive_until_character(self, character, limit, timeout=None, include=False):
+    def receive_until_character(self, character, limit, timeout=None, include=False)
         # Checking for the data type fo
         is_bytes = isinstance(character, bytes)
         is_int = isinstance(character, int)
@@ -66,8 +66,25 @@ class SocketWrapper:
         if is_int:
             character = int.to_bytes(character, "1", "big")
 
+        counter = 0
         # Calling the receive length function with one byte at a time until the character in question appears
+        data = b""
         while True:
+            # Checking if the limit of bytes has been reched
+            if counter > limit:
+                raise OverflowError("The limit of bytes to receive until character has been reached")
+            current = self.receive_length(1, timeout)
+            if current == character:
+                if include is True:
+                    data += character
+                # After the character has been found and eventually was added to the data, breaking the infinite loop
+                break
+            else:
+                # In case the character is not there adding the byte to the counter and incrementing the counter
+                data += character
+                counter += 1
+
+        return data
 
 
     def receive_length(self, length, timeout=None):
