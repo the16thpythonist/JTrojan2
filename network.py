@@ -312,6 +312,20 @@ class FormReceiveHandler(threading.Thread):
             # will not be character bt length terminated. Also being the last line
             pass
 
+    def receive_content_line(self):
+        """
+        This method receives a single line from the socket and then splits it into the identifier, which tells about
+        what information the line actually is, and the actual content.
+        Returns:
+        A tuple, whose first element is the byte string of the identifier and the second item being the byte string
+        of the content
+        """
+        byte_string = self.receive_line()
+        # Splitting the line into the identifier and the content
+        split_list = byte_string.split(b':')
+        # Returning the tuple of the identifier byte string and the content byte string
+        return tuple(split_list)
+
     def receive_line(self):
         """
         This method will receive data from the socket until a line break character is being received, so essentially
