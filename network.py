@@ -212,8 +212,17 @@ class Greeter(mp.Process):
         self.sock = None
 
     def create_socket(self):
+        """
+        This method creates a new raw socket in the 'sock' property, which also means closing the old one, in case
+        there is one already there.
+        Returns:
+        void
+        """
         # Closing the old socket in case there is one
         if self.sock is not None:
-            self.sock.close()
+            try:
+                self.sock.close()
+            except socket.error:
+                pass
         # Creating a new socket
         self.sock = socket.socket(self.family, socket.SOCK_STREAM)
