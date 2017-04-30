@@ -146,7 +146,7 @@ class SocketWrapper:
 
             # Adding the newly received data to the stream of already received data
             data += more
-        return
+        return data
 
     def sendall(self, data):
         """
@@ -311,6 +311,24 @@ class FormReceiveHandler(threading.Thread):
             # Receiving all the lines until one of them is the length line, which indicates, that the following line
             # will not be character bt length terminated. Also being the last line
             pass
+
+    def receive_encoded_line(self, length):
+        """
+        This method receives a line of encoded data from the socket, if given the length of the data in bytes.
+        Args:
+            length: The integer length of the data in the encoded line. Only the content! identifier does not count
+
+        Returns:
+        A tuple, whose first element is the byte string of the identifier and the second item being the actual content
+        in byte strings.
+        """
+        assert isinstance(self.sock_wrap, SocketWrapper)
+        # First receiving the identifier from the next line, so until the ':'
+        identifier = self.sock_wrap.receive_until_character(b':')
+        # Now receiving as many bytes as specified
+        content = self.sock_wrap.receive_length(length)
+        self.sock_wrap.receive_length(1)
+        return identifier, content
 
     def receive_content_line(self):
         """
