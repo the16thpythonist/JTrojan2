@@ -418,6 +418,24 @@ class FormReceiveHandler(threading.Thread):
         pass
 
     @staticmethod
+    def create_content_list(content):
+        """
+        This method will take the content line, that was received from the socket ans interprets it as comma separated
+        list of individual string values
+        Args:
+            content: The bytes object, that was received as the content to one line of the form
+
+        Returns:
+        The list of strings
+        """
+        # Turning into a string
+        content_string = str(content)
+        # Splitting the string by the kommata
+        content_list = content_string.split(",")
+        return content_list
+
+
+    @staticmethod
     def create_content_decoded(content):
         """
         This method will take the content of a line, that was received from the socket and interpret it as encoded
@@ -435,8 +453,8 @@ class FormReceiveHandler(threading.Thread):
         # Returning the unpickled object
         return content_object
 
-class Evaluator(mp.Process):
 
+class Evaluator(mp.Process):
 
     def __init__(self, input_queue, output_queue, state, worker_class, worker_amount):
         mp.Process.__init__(self)
