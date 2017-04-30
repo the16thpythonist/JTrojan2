@@ -1,3 +1,4 @@
+import multiprocessing as mp
 import socket
 import time
 
@@ -192,3 +193,27 @@ class SocketWrapper:
         void
         """
         self.type = self.sock.type
+
+
+class Greeter(mp.Process):
+
+    def __init__(self, port, output_queue, family=socket.AF_INET, ip="localhost"):
+        mp.Process.__init__()
+        # The name of the process
+        self.name = "greeter"
+        # The network information
+        self.ip = ip
+        self.port = port
+        self.family = family
+        # The output queue for the sockets
+        self.output = output_queue
+
+        # Creating the socket
+        self.sock = None
+
+    def create_socket(self):
+        # Closing the old socket in case there is one
+        if self.sock is not None:
+            self.sock.close()
+        # Creating a new socket
+        self.sock = socket.socket(self.family, socket.SOCK_STREAM)
