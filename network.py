@@ -144,7 +144,24 @@ class SocketWrapper:
 
             # Adding the newly received data to the stream of already received data
             data += more
-        return data
+        return
+
+    def sendall(self, data):
+        """
+        Simply wraps the 'sendall' method of the actual socket object.
+        Raises:
+            ConnectionError: In case the socket is not connected yet.
+        Args:
+            data: The data to be sent over the socket, best case would be bytes already, does not have to be though
+
+        Returns:
+        void
+        """
+        # Checking if the socket is already connected
+        if not self.connected:
+            raise ConnectionError("There is no open connection to send to yet!")
+        # Actually calling the method of the socket
+        self.sock.sedall(data)
 
     def release_socket(self):
         """
