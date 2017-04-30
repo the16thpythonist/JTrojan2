@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import threading
 import socket
 import time
 
@@ -211,7 +212,7 @@ class Greeter(mp.Process):
             Default on the local machine, by 'localhost'
     """
     def __init__(self, port, output_queue, state, family=socket.AF_INET, ip="localhost"):
-        mp.Process.__init__()
+        mp.Process.__init__(self)
         # The name of the process#
         self.name = "greeter"
         # The network information
@@ -289,8 +290,29 @@ class Greeter(mp.Process):
         return self.ip, self.port
 
 
+class FormReceiverWorker(threading.Thread):
+
+    def __init__(self, sock, output_queue):
+        threading.Thread.__init__(self)
+        # Putting the already connected socket into the wrapper fro easier handle
+        self.sock = sock
+        self.sock_wrap = None
+
+
 class Evaluator(mp.Process):
 
-    def __init__(self):
-        pass
+
+    def __init__(self, input_queue, output_queue, state, worker_class, worker_amount):
+        mp.Process.__init__(self)
+        # The queues working as standardized interfaces
+        self.input = input_queue
+        self.output = output_queue
+
+        self.running = state
+
+    def run(self):
+        while self.running is True:
+
+
+
 
