@@ -308,6 +308,7 @@ class FormReceiveHandler(threading.Thread):
 
         # The dictionary that saves the data in every step
         self.data = {}
+        self.form = None
 
     def run(self):
         # Updating the running flag to True
@@ -339,6 +340,10 @@ class FormReceiveHandler(threading.Thread):
                     # Getting the encoded data from the socket and adding it to the dictionary after decoding it
                     identifier, content = self.receive_encoded_line(length)
                     self.evaluate_encoded_content(identifier, content)
+
+            # After all the data is received, which means the data dict contains all the lines of the form, the data
+            # dict is being turned into a form
+
 
     def assign(self, sock):
         """
