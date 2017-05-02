@@ -16,7 +16,7 @@ class CommunicationForm:
         self.header = header
 
     @staticmethod
-    def create_end_string(self):
+    def create_end_string():
         """
         This method creates the end string to be added as the last line to each of the communication forms. The end
         line acts as the terminator for the receive loop
@@ -26,7 +26,7 @@ class CommunicationForm:
         return "end:True"
 
 
-class RequestForm:
+class RequestForm(CommunicationForm):
     """
     This class represents the string, that is being sent from the user of the JTrojan system to the server. The request
     transmission is according to a form, that begins with the request header and which specifies the following
@@ -41,9 +41,9 @@ class RequestForm:
     - parameters: The parameters of the function call. Originally given as a list and then pickled and string encoded
     """
 
-    header = "REQUEST"
-
     def __init__(self, function_name, parameters, addresses, return_mode, error_mode, id):
+        # Initializing the super class with the request header
+        CommunicationForm.__init__(self, "REQUEST")
         self.function_name = function_name
         self.parameters = parameters
         self.addresses = addresses
@@ -84,6 +84,8 @@ class RequestForm:
         length_string = self.create_length_string()
         string_list.append(length_string)
         string_list.append(parameters_string)
+        # Adding the end line at the end of the form
+        string_list.append(self.create_end_string())
         # Actually assembling the string from the list
         return '\n'.join(string_list)
 
