@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import JTrojan2.communication as comm
 import threading
 import pickle
 import codecs
@@ -343,7 +344,7 @@ class FormReceiveHandler(threading.Thread):
 
             # After all the data is received, which means the data dict contains all the lines of the form, the data
             # dict is being turned into a form
-
+            self.form = comm.produce_form(self.data)
 
     def assign(self, sock):
         """
@@ -360,6 +361,16 @@ class FormReceiveHandler(threading.Thread):
         self.create_socket_wrap()
         # Resetting the idle property so that the main loop exits
         self.idle = False
+
+    def assemble_output(self):
+        """
+        This method simply assembles the socket object and the form object into a tuple, that can be passed through the
+        output queue
+        Returns:
+        The tuple, whose first element is the socket used for the transmission and the second the received form
+        """
+        assert self.form is not None
+        return self.sock, self.form
 
     def receive_encoded_line(self, length):
         """
