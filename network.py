@@ -415,6 +415,20 @@ class FormReceiveHandler(threading.Thread):
         self.sock_wrap = SocketWrapper(self.sock, True)
 
     def evaluate_content(self, identifier, content):
+        """
+        This method takes the byte string identifier and content of a line received by the socket and turns the
+        identifier into a string and evaluates the type of the content, turning it into either a int, a string or
+        a list of strings.
+        The type converted content is then used as the value to the identifier as key in the internal data dictionary
+        Args:
+            identifier: The byte string identifier for the content in a line
+            content: The byte string of the content
+
+        Returns:
+        void
+        """
+        # Turning the byte string identifier into a string
+        identifier = self.create_content_string(identifier)
         # If the content contains a comma or more, it is interpreted as a list of individual strings
         if b',' in content:
             self.data[identifier] = self.create_content_list(content)
