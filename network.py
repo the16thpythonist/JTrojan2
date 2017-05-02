@@ -562,7 +562,7 @@ class FormReceiveHandler(threading.Thread):
 
 class Evaluator(mp.Process):
 
-    def __init__(self, input_queue, output_queue, state, worker_class, worker_amount):
+    def __init__(self, input_queue, output_queue, state, handler_amount=2):
         mp.Process.__init__(self)
         # The queues working as standardized interfaces
         self.input = input_queue
@@ -570,9 +570,23 @@ class Evaluator(mp.Process):
 
         self.running = state
 
+        self.handler_amount = handler_amount
+        self.handlers = []
+
     def run(self):
+
         while self.running is True:
             pass
+
+    def add_handler(self):
+        """
+        This method will create a new FormReceiveHandler, start the Thread and add it to the internal list
+        Returns:
+        void
+        """
+        handler = FormReceiveHandler(self.output)
+        handler.start()
+        self.handlers.append(handler)
 
 
 
