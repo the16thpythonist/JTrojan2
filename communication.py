@@ -2,6 +2,35 @@ import codecs
 import pickle
 
 
+def produce_form(form_dict):
+    header = form_dict["header"]
+    if header == "REQUEST":
+        return header
+
+
+def produce_request_form(form_dict):
+    """
+    This function takes the arguments from the given dictionary and assumes it is the items, that describe a
+    RequestForm, extracts the values from the dict and passes them to the constructor of te Form object, which is then
+    returned
+    Args:
+        form_dict: The dictionary containing the parameters for the Request form
+
+    Returns:
+    The RequestForm object according to the parameters in the string
+    """
+    # Extracting the data from the dictionary and passing it to the constructor of the RequestForm
+    user_identifier = form_dict["id"]
+    parameters = form_dict["parameters"]
+    addresses = form_dict["addresses"]
+    error_handle = form_dict["error"]
+    return_handle = form_dict["return"]
+    function_name = form_dict["function"]
+
+    form = RequestForm(function_name, parameters, addresses, return_handle, error_handle, user_identifier)
+    return form
+
+
 class CommunicationForm:
     """
     The class represents the base class for all the forms which are sent between the server and the user in the
@@ -13,6 +42,7 @@ class CommunicationForm:
         header: The string header of the form
     """
     def __init__(self, header):
+        assert isinstance(header, str) and header.isupper()
         self.header = header
 
     @staticmethod
