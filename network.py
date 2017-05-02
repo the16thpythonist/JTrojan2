@@ -330,7 +330,7 @@ class FormReceiveHandler(threading.Thread):
             # it is the end line
             while identifier != b'end':
                 identifier, content = self.receive_content_line()
-                self.data[identifier] = content
+                self.evaluate_content(identifier, content)
                 # In case the identifier is the length, receiving the next line as encoded line
                 if identifier == b'length':
                     length = int(str(content))
@@ -441,6 +441,25 @@ class FormReceiveHandler(threading.Thread):
                 self.data[identifier] = int(string_content)
             except ValueError:
                 self.data[identifier] = string_content
+
+    def evaluate_encoded_content(self, identifier, content):
+        """
+        This method takes the bytes string of the identifier of a data line, that is supposed to represent a complex
+        data type and is thus encoded and pickled. The method will turn the identifier into string and convert the
+        content back into its original data type and then add it as key; value pair to the internal data dict.
+        Args:
+            identifier: The bytes string of the identifier
+            content: The bytes string of the encoded data object
+
+        Returns:
+        void
+        """
+        # Turning the identifier into a string
+        identifier = str(identifier)
+        # Decoding and unpicking the content
+        content = self.create_content_decoded(content)
+        # Adding them to the dictionary
+        self.data[identifier] = content
 
     @staticmethod
     def create_content_string(content):
