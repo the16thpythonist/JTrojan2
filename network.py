@@ -321,10 +321,11 @@ class FormReceiveHandler(threading.Thread):
             # Creating the dictionary for the data received. Clearing it, if this is 2nd+ run of handler
             self.data = {}
 
-            # Receiving the header
-            self.receive_header()
+            # Receiving the header, and adding it as a normal string to the dictionary
+            header = self.receive_header()
+            self.evaluate_header(header)
+
             identifier = b''
-            content = b''
 
             # Receiving all the lines until one is the length line, indicating that the following is encoded content or
             # it is the end line
@@ -333,9 +334,11 @@ class FormReceiveHandler(threading.Thread):
                 self.evaluate_content(identifier, content)
                 # In case the identifier is the length, receiving the next line as encoded line
                 if identifier == b'length':
-                    length = int(str(content))
+                    # Turning the length content into a int, so that it can be used to know how many bytes too receive
+                    length = int(self.create_content_string(content))
+                    # Getting the encoded data from the socket and adding it to the dictionary after decoding it
                     identifier, content = self.receive_encoded_line(length)
-                    self.data[identifier] = content
+                    self.evaluate_encoded_content(identifier, content)
 
     def assign(self, sock):
         """
@@ -394,7 +397,7 @@ class FormReceiveHandler(threading.Thread):
         void
         """
         byte_string = self.receive_line()
-        self.data[b'header'] = byte_string
+        return byte_string
 
     def receive_line(self):
         """
@@ -413,6 +416,22 @@ class FormReceiveHandler(threading.Thread):
         void
         """
         self.sock_wrap = SocketWrapper(self.sock, True)
+
+    def add_header(self, header):
+        """
+        Simply adds the header string to the internal dictionary
+        Args:
+            header: The string (not byte string!) of the header to add to the dict
+
+        Returns:
+        void
+        """
+        self.data["header"] = header
+
+    def evaluate_header(self, header):
+        # Turning the byte string into a string and then adding it to the dict
+        header = self.create_content_string(header)
+        self.add_header(header)
 
     def evaluate_content(self, identifier, content):
         """
