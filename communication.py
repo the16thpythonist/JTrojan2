@@ -3,7 +3,15 @@ import pickle
 
 
 class CommunicationForm:
-
+    """
+    The class represents the base class for all the forms which are sent between the server and the user in the
+    JTrojan system. This class already contains the property for the header of the Form and the utility to create
+    the end line, which is shared amongst all forms, as the end line acts as a terminator to the receive loop.
+    Args:
+        header: The string header for the form
+    Attributes:
+        header: The string header of the form
+    """
     def __init__(self, header):
         self.header = header
 
@@ -16,6 +24,7 @@ class CommunicationForm:
         The end string line with identifier and content already assembled
         """
         return "end:True"
+
 
 class RequestForm:
     """
