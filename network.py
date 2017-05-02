@@ -414,8 +414,34 @@ class FormReceiveHandler(threading.Thread):
         """
         self.sock_wrap = SocketWrapper(self.sock, True)
 
-    def evaluate_content(self):
-        pass
+    def evaluate_content(self, identifier, content):
+        # If the content contains a comma or more, it is interpreted as a list of individual strings
+        if b',' in content:
+            self.data[identifier] = self.create_content_list(content)
+        else:
+            # First creating the correct string representation of the byte string
+            string_content = self.create_content_string(content)
+            # Attempting to turn the string into a integer. But setting the string directly as the dictionary item in
+            # case the string did not represent a integer.
+            try:
+                self.data[identifier] = int(string_content)
+            except ValueError:
+                self.data[identifier] = string_content
+
+    @staticmethod
+    def create_content_string(content):
+        """
+        This method will take the content of a line received by the socket and turn the bytes object into a string
+        Args:
+            content: The bytes object, that was received as the content too one line of the form
+
+        Returns:
+        The string to the bytes string
+        """
+        # Turning the bytes object into a string first and then stripping the additional '' characters
+        content_string = str(content)
+        content_string = content_string[2:][:-1]
+        return content_string
 
     @staticmethod
     def create_content_list(content):
@@ -430,10 +456,9 @@ class FormReceiveHandler(threading.Thread):
         """
         # Turning into a string
         content_string = str(content)
-        # Splitting the string by the kommata
+        # Splitting the string by the comma
         content_list = content_string.split(",")
         return content_list
-
 
     @staticmethod
     def create_content_decoded(content):
