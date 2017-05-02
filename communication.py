@@ -5,10 +5,10 @@ import pickle
 def produce_form(form_dict):
     header = form_dict["header"]
     if header == "REQUEST":
-        return header
+        return _produce_request_form(form_dict)
 
 
-def produce_request_form(form_dict):
+def _produce_request_form(form_dict):
     """
     This function takes the arguments from the given dictionary and assumes it is the items, that describe a
     RequestForm, extracts the values from the dict and passes them to the constructor of te Form object, which is then
