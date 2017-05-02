@@ -312,6 +312,15 @@ class FormReceiveHandler(threading.Thread):
         self.form = None
 
     def run(self):
+        """
+        The main method of the Thread. As long as the Thread is running the loop will wait until it is assigned a new
+        socket. It will then start to receive the data from the socket line by line and add each line, which consits of
+        a identifier and the content, as a key-value-pair into a dict. When all the data has been received the dict
+        will be converted into the according communication form and will then, together with the socket itself, be
+        put into the output queue. Then the loop starts to wait for a new socket to handle.
+        Returns:
+        void
+        """
         # Updating the running flag to True
         self.running = True
 
@@ -345,6 +354,10 @@ class FormReceiveHandler(threading.Thread):
             # After all the data is received, which means the data dict contains all the lines of the form, the data
             # dict is being turned into a form
             self.form = comm.produce_form(self.data)
+            output = self.assemble_output()
+            self.output.put(output)
+            # Releasing the socket
+            self.sock = None
 
     def assign(self, sock):
         """
