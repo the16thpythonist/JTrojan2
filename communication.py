@@ -4,9 +4,18 @@ import pickle
 
 class CommunicationForm:
 
-    def __init__(self):
-        pass
+    def __init__(self, header):
+        self.header = header
 
+    @staticmethod
+    def create_end_string(self):
+        """
+        This method creates the end string to be added as the last line to each of the communication forms. The end
+        line acts as the terminator for the receive loop
+        Returns:
+        The end string line with identifier and content already assembled
+        """
+        return "end:True"
 
 class RequestForm:
     """
